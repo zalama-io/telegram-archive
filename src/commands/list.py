@@ -1,22 +1,14 @@
-import asyncio
-
 from rich.console import Console
 from rich.table import Table
-
-from src.client import client
-from src.config import validate
 
 console = Console()
 
 
-async def main():
-    validate()
-
-    await client.start()
-
+async def list_chats(client):
     table = Table(title="Telegram Chats")
 
-    table.add_column("#", style="cyan", justify="right")
+    table.add_column("#", justify="right", style="cyan")
+    table.add_column("ID", style="magenta")
     table.add_column("Name", style="green")
     table.add_column("Type", style="yellow")
 
@@ -32,6 +24,7 @@ async def main():
 
         table.add_row(
             str(index),
+            str(dialog.id),
             dialog.name,
             chat_type,
         )
@@ -39,9 +32,3 @@ async def main():
         index += 1
 
     console.print(table)
-
-    await client.disconnect()
-
-
-if __name__ == "__main__":
-    asyncio.run(main())
