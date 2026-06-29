@@ -1,23 +1,32 @@
-import typer
+import asyncio
+
 from rich.console import Console
 from rich.panel import Panel
 
-app = typer.Typer()
+from src.client import client
+from src.config import validate
+
 console = Console()
 
-@app.callback()
-def main():
-    """📦 TeleVault"""
 
-@app.command()
-def version():
-    """عرض إصدار البرنامج"""
+async def main():
+    validate()
+
+    await client.start()
+
+    me = await client.get_me()
+
     console.print(
         Panel.fit(
-            "[bold cyan]TeleVault[/bold cyan]\nVersion: 0.1.0",
-            title="Information",
+            f"[bold green]Welcome[/bold green]\n\n"
+            f"Name : {me.first_name}\n"
+            f"Username : @{me.username}",
+            title="TeleVault",
         )
     )
 
+    await client.disconnect()
+
+
 if __name__ == "__main__":
-    app()
+    asyncio.run(main())
