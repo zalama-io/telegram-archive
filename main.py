@@ -1,47 +1,35 @@
 import asyncio
 
-from rich.console import Console
-from rich.table import Table
+import typer
 
 from src.client import client
 from src.config import validate
+from src.commands.list import list_chats as list_chats_cmd
+from src.commands.archive import archive_chat
 
-console = Console()
+app = typer.Typer(
+    help="TeleVault - Archive your Telegram chats."
+)
 
 
-async def main():
-    validate()
+@app.command()
+def list():
+    """List Telegram chats."""
 
-    await client.start()
+    async def runner():
+        validate()
+        await client.start()
+        await list_chats_cmd(client)
+        await client.disconnect()
 
-    table = Table(title="Telegram Chats")
+    asyncio.run(runner())
 
-    table.add_column("#", style="cyan", justify="right")
-    table.add_column("Name", style="green")
-    table.add_column("Type", style="yellow")
+@app.command()
+def archive(chat: str):
+    """Archive a Telegram chat."""
 
-    index = 1
-
-    async for dialog in client.iter_dialogs():
-        if dialog.is_channel:
-            chat_type = "Channel"
-        elif dialog.is_group:
-            chat_type = "Group"
-        else:
-            chat_type = "Private"
-
-        table.add_row(
-            str(index),
-            dialog.name,
-            chat_type,
-        )
-
-        index += 1
-
-    console.print(table)
-
-    await client.disconnect()
-
+    asyncio.run(archive_chat(chat))
 
 if __name__ == "__main__":
-    asyncio.run(main())
+    app()
+
